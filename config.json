@@ -1,0 +1,8 @@
+{
+    "path": {
+        "map_back": "resources/map_back.png",
+        "map_borders": "resources/map_borders.png",
+        "map_road": "resources/map_road.png",
+        "map_text": "resources/map_text.png"
+    }
+}
