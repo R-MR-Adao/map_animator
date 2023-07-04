@@ -22,12 +22,12 @@ class Animator:
     def animate(self) -> None:
         """ method to create map animation """
 
-        self._show(matrix=self._bitmaps["map_back"])                    # display map background
+        self._show(self._bitmaps["map_back"])                           # display map background
         input()                                                         # block Python
 
     # private methods
 
-    def _show(self, m_type:str="image", matrix:np.ndarray=np.array([])) -> None:
+    def _show(self, matrix:np.ndarray, m_type:str="image") -> None:
         """ method to display the contents of an input matrix """
         
         if m_type == "image":                                           # image display 
@@ -45,7 +45,7 @@ class Animator:
         """ method to load a bitmap from a path"""
         
         image = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)       # read the image using OpenCV
-        return np.array(image)                                           # convert the image to a NumPy matrix
+        return np.array(image)                                          # convert the image to a NumPy matrix
 
 # test script TODO: Remove
 a = Animator()                                                          # instantiate Animator object
