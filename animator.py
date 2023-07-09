@@ -61,9 +61,8 @@ class Animator:
         plt.subplots_adjust(left=0, right=1, bottom=0, top=1)           # adjust margins
         fig = plt.gcf()                                                 # current figure handle
 
-        frame = []                                                      # list of frames if output_mode is set to save
+        frames = []                                                      # list of frames if output_mode is set to save
         filename = ""                                                   # filename to save animation
-        frame_writer = None                                             # frame writer for gif saving
         [self._show(self._bitmaps[im]) for im in ims]                   # display map background        
         line, = plt.plot(path[0], "--", linewidth=lw)                   # draw first point
         
@@ -74,17 +73,12 @@ class Animator:
             fig.canvas.draw()                                           # update drawing             
             plt.pause(0.001)                                            # time to allow visualization
             if output_mode == "save":                                   # update frame to output
-                frame = self._get_frame(fig)                            # get current frame
-                filename, frame_writer = self._save(frame,              # update file saving requirements
-                                            filename=filename,          # save frame to specified filename
-                                            frame_writer=frame_writer)  # pass existing frame writer
-                if filename == "":                                      # cancelled by user
-                    break                                               # stop animation loop
-                if i > 0 and i%10 == 0:                                 # 100th iteration
-                    frame_writer.close()                                # close and re-open frame writer
-                    frame_writer = None                                 # reset frame writer
-        if frame_writer != None:                                        # saving mode not cancelled
-            frame_writer.close()                                        # close frame writer
+                frames.append(self._get_frame(fig))                     # get current frame
+        
+        if output_mode == "save":                                       # output to file
+            frames.append(self._get_frame(fig))                         # get current frame
+            filename = self._save(frames,                               # update file saving requirements
+                                    filename=filename)                  # save frame to specified filename
 
     def set_FoV(self, current_pos:np.ndarray=np.array([0,0])) -> None:
         """ method to dynamically set the current Field of View """
@@ -210,15 +204,12 @@ class Animator:
         if m_type == "frames":                                          # save as animated gif
             if filename [-4:] != ".gif":                                # incorrect or missing extension
                 filename += ".gif"                                      # add .gif to file name
-            if frame_writer is None:                                    # Create the writer and set the filename for the first frame
-                frame_writer = imageio.get_writer(                      # start a new frame writer
-                    filename,                                           # file name
-                    mode='I',                                           # color mode (individual pallette)
-                    append=True,
-                    duration=self._config["output"]["frame_duration"],  # frame duration
-                    loop=self._config["output"]["loop"])                # number of loops
-            if frame_writer is not None:
-                frame_writer.append_data(matrix)                        # save to existing frame writer
+            matrix[0].save(filename,                                    # save to file
+                           format='GIF',                                # file name
+                           append_images=matrix[1:],                    # append files
+                           save_all=True,                               # save all frames
+                           duration=self._config["output"]["frame_duration"],   # frame duration
+                           loop=self._config["output"]["loop"])         # number of loops
 
         return filename, frame_writer
 

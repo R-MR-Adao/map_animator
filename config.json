@@ -6,7 +6,7 @@
     "path":{
         "path_road": "resources/path_road.dat",
         "line_width": 4,
-        "skip": 5
+        "skip": 2
     },
     "resources" : {
         "path_color" : [0,0,255],
