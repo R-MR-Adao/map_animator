@@ -28,11 +28,16 @@ class Animator:
         mat = self._bitmaps[im]                                         # image matrix
         mask = np.all(mat == color, axis=2)                             # color-filtering mask
         xy = np.array(np.where(mask)[::-1]).T                           # determine path coordinates
-        #self._smooth(xy, self._config["filters"]["smooth_size"])        # smooth path
+        
+        smooth_size = self._config["filters"]["smooth_size"]            # get smooth size
+        if smooth_size > 0:                                             # if not deactivated
+            self._smooth(xy, smooth_size)                               # apply smooth to path
+        
         xy = self._filter_position(xy)                                  # apply positional filter
         self._show(xy, m_type="line")                                   # show identified path
         if self._get_user_response("Save coordinates to data file?"):   # ask user if to save file
             self._save(xy, m_type="line")                               # save to file
+        plt.clf()                                                       # clear plotted figure
         return xy
 
     def import_path(self, im:str) -> np.ndarray:
@@ -44,12 +49,14 @@ class Animator:
         """ method to create image animation """
 
         skip = self._config["path"]["skip"]                             # points to skip from the original dataset
+        lw = self._config["path"]["line_width"]                         # plot line width
+
         [self._show(self._bitmaps[im]) for im in ims]                   # display map background
-        line, = plt.plot(path[0])                                       # draw first point
+        line, = plt.plot(path[0], "--", linewidth=lw)                   # draw first point
         for i, pos in enumerate(path[1::skip]):                         # iterate over path to follow
             line.set_data(path[:i*skip,0], path[:i*skip,1])             # update data
             self.set_FoV(pos)                                           # set current Field of View
-            plt.pause(0.001)                                            # time to allow visualization
+            plt.pause(0.001)                                            # time to allow visualization      
 
     def set_FoV(self, current_pos:np.ndarray=np.array([0,0])) -> None:
         """ method to dynamically set the current Field of View """
@@ -168,6 +175,6 @@ class Animator:
 
 # test script TODO: Remove
 a = Animator()                                                          # instantiate Animator object
-road = a.generate_path("map_road")                                      # generate path dataset
+#road = a.generate_path("map_road")                                      # generate path dataset
 road = a.import_path("path_road")                                       # import path dataset
 a.animate(["map_all"], road)                                            # launch animation
