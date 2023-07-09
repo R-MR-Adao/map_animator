@@ -1,8 +1,25 @@
 {
-    "path": {
+    "maps": {
+        "map_all": "resources/map_all.png",
         "map_back": "resources/map_back.png",
         "map_borders": "resources/map_borders.png",
         "map_road": "resources/map_road.png",
         "map_text": "resources/map_text.png"
+    },
+    "path":{
+        "path_road": "resources/path_road.dat",
+        "skip": 5
+    },
+    "resources" : {
+        "path_color" : [0,0,255],
+        "starting_direction": "east"
+    },
+    "filters": {
+        "smooth_size": 100,
+        "diff_threshold" : 5,
+        "recursion_limit" : 0
+    },
+    "display": {
+        "FoV": [1280, 720]
     }
 }
