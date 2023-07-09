@@ -4,6 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tkinter as tk
 from tkinter import filedialog
+from PIL import Image
+import imageio
+from tqdm import tqdm
 
 class Animator:
     
@@ -50,13 +53,38 @@ class Animator:
 
         skip = self._config["path"]["skip"]                             # points to skip from the original dataset
         lw = self._config["path"]["line_width"]                         # plot line width
+        output_mode = self._config["output"]["mode"]                    # save or show mode
+        figure_size = tuple(self._config["output"]["size"])             # otuput figure size
 
-        [self._show(self._bitmaps[im]) for im in ims]                   # display map background
+        plt.figure(figsize=figure_size)                                 # set figure dize
+        plt.get_current_fig_manager().window.state('zoomed')            # maximize window
+        plt.subplots_adjust(left=0, right=1, bottom=0, top=1)           # adjust margins
+        fig = plt.gcf()                                                 # current figure handle
+
+        frame = []                                                      # list of frames if output_mode is set to save
+        filename = ""                                                   # filename to save animation
+        frame_writer = None                                             # frame writer for gif saving
+        [self._show(self._bitmaps[im]) for im in ims]                   # display map background        
         line, = plt.plot(path[0], "--", linewidth=lw)                   # draw first point
-        for i, pos in enumerate(path[1::skip]):                         # iterate over path to follow
+        
+        total = len(path[1::skip])                                      # total number of iterations
+        for i, pos in tqdm(enumerate(path[1::skip]), total=total):      # iterate over path to follow
             line.set_data(path[:i*skip,0], path[:i*skip,1])             # update data
             self.set_FoV(pos)                                           # set current Field of View
-            plt.pause(0.001)                                            # time to allow visualization      
+            fig.canvas.draw()                                           # update drawing             
+            plt.pause(0.001)                                            # time to allow visualization
+            if output_mode == "save":                                   # update frame to output
+                frame = self._get_frame(fig)                            # get current frame
+                filename, frame_writer = self._save(frame,              # update file saving requirements
+                                            filename=filename,          # save frame to specified filename
+                                            frame_writer=frame_writer)  # pass existing frame writer
+                if filename == "":                                      # cancelled by user
+                    break                                               # stop animation loop
+                if i > 0 and i%10 == 0:                                 # 100th iteration
+                    frame_writer.close()                                # close and re-open frame writer
+                    frame_writer = None                                 # reset frame writer
+        if frame_writer != None:                                        # saving mode not cancelled
+            frame_writer.close()                                        # close frame writer
 
     def set_FoV(self, current_pos:np.ndarray=np.array([0,0])) -> None:
         """ method to dynamically set the current Field of View """
@@ -66,9 +94,16 @@ class Animator:
         y_lim = current_pos[1] + fov[1]/2*np.array([1, -1])             # plot xy limits
         plt.xlim(x_lim)                                                 # set x limits
         plt.ylim(y_lim)                                                 # set y limits
-        plt.show(block=False)                                           # update visualization
     
     # private methods
+
+    def _get_frame(sefl, fig):
+        """ metho to get current plotted grame """
+
+        return Image.frombytes(                                         # get frame
+                    'RGB',                                              # color type
+                    fig.canvas.get_width_height(),                      # figure dimensions
+                    fig.canvas.tostring_rgb())                          # figure contents
 
     def _smooth(self, xy:np.ndarray, box_pts:int=10) ->None:
         """ method to smooth a curve dataset"""
@@ -154,18 +189,38 @@ class Animator:
         image = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)       # read the image using OpenCV
         return np.array(image)                                          # convert the image to a NumPy matrix
     
-    def _save(self, matrix:np.ndarray, m_type:str="image") -> None:
+    def _save(self, matrix, m_type:str="frames", filename:str='', frame_writer=None) -> str:
         """ method to save the contents of an input matrix to file """
 
-        default_extensions = {"image":".gif", "line": ".dat"}
-        extension = default_extensions[m_type]
-        root = tk.Tk()                                                  # Create a Tkinter root window
-        root.withdraw()                                                 # Hide the main window
-        filename = filedialog.asksaveasfilename(                        # Prompt the user to select a file location
-            defaultextension=extension)                                 # set default extension
+        if filename == '':
+            default_extensions = {                                      # default file extensions
+                "image":("PNG Image", ".png"),                          # image
+                "line": ('Text File', ".dat"),                          # line datasets
+                "frames":('Animated GIF', '.gif')}                      # animated gifs
+            extension = default_extensions[m_type]                      # select the specified one
+            
+            root = tk.Tk()                                              # Create a Tkinter root window
+            root.withdraw()                                             # Hide the main window
+            filename = filedialog.asksaveasfilename(                    # Prompt the user to select a file location
+                filetypes=[extension])                                  # set default extension
 
         if m_type == "line":                                            # save matrix to dat file
-            np.savetxt(filename, matrix)
+            np.savetxt(filename, matrix)                                # save to text
+
+        if m_type == "frames":                                          # save as animated gif
+            if filename [-4:] != ".gif":                                # incorrect or missing extension
+                filename += ".gif"                                      # add .gif to file name
+            if frame_writer is None:                                    # Create the writer and set the filename for the first frame
+                frame_writer = imageio.get_writer(                      # start a new frame writer
+                    filename,                                           # file name
+                    mode='I',                                           # color mode (individual pallette)
+                    append=True,
+                    duration=self._config["output"]["frame_duration"],  # frame duration
+                    loop=self._config["output"]["loop"])                # number of loops
+            if frame_writer is not None:
+                frame_writer.append_data(matrix)                        # save to existing frame writer
+
+        return filename, frame_writer
 
     def _load(self, filename:str, m_type:str="image") -> np.ndarray:
         """ method to load the contents of a file into and ndarray """

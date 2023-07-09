@@ -6,7 +6,7 @@
     "path":{
         "path_road": "resources/path_road.dat",
         "line_width": 4,
-        "skip": 20
+        "skip": 5
     },
     "resources" : {
         "path_color" : [0,0,255],
@@ -19,5 +19,11 @@
     },
     "display": {
         "FoV": [1280, 720]
+    },
+    "output": {
+        "mode" : "save",
+        "size" : [19.2 ,  9.85],
+        "frame_duration": 33,
+        "loop": 0
     }
 }
