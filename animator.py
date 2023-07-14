@@ -53,30 +53,35 @@ class Animator:
 
         skip = self._config["path"]["skip"]                             # points to skip from the original dataset
         lw = self._config["path"]["line_width"]                         # plot line width
+        color = self._config["path"]["color"]                           # plot line color
         output_mode = self._config["output"]["mode"]                    # save or show mode
-        figure_size = tuple(self._config["output"]["size"])             # otuput figure size
+        figure_size = tuple(self._config["output"]["size"])             # output figure size
 
-        plt.figure(figsize=figure_size)                                 # set figure dize
-        plt.get_current_fig_manager().window.state('zoomed')            # maximize window
+        plt.get_current_fig_manager().window.wm_geometry(               # set figure geomtry
+            f"{figure_size[0]}x{figure_size[1]}+{0}+{0}")               # as defined by user
         plt.subplots_adjust(left=0, right=1, bottom=0, top=1)           # adjust margins
         fig = plt.gcf()                                                 # current figure handle
 
-        frames = []                                                      # list of frames if output_mode is set to save
+        frames = []                                                     # list of frames if output_mode is set to save
         filename = ""                                                   # filename to save animation
         [self._show(self._bitmaps[im]) for im in ims]                   # display map background        
-        line, = plt.plot(path[0], "--", linewidth=lw)                   # draw first point
+        line, = plt.plot(path[0], "--", linewidth=lw, color=color)      # draw first point
         
         total = len(path[1::skip])                                      # total number of iterations
         for i, pos in tqdm(enumerate(path[1::skip]), total=total):      # iterate over path to follow
             line.set_data(path[:i*skip,0], path[:i*skip,1])             # update data
-            self.set_FoV(pos)                                           # set current Field of View
+            smooth = self._config["display"]["camera_smooth"]
+            m = max(0,i-skip*smooth)
+            M = min(len(path), i+skip*smooth)
+            cam_pos = [np.mean(path[m:M,0]), np.mean(path[m:M,1])]
+            self.set_FoV(np.array(pos))                                 # set current Field of View
             fig.canvas.draw()                                           # update drawing             
             plt.pause(0.001)                                            # time to allow visualization
             if output_mode == "save":                                   # update frame to output
-                frames.append(self._get_frame(fig))                     # get current frame
+                frame = np.array(fig.canvas.renderer.buffer_rgba())     # get frame
+                frames.append(Image.fromarray(frame))                   # append it to frame list
         
         if output_mode == "save":                                       # output to file
-            frames.append(self._get_frame(fig))                         # get current frame
             filename = self._save(frames,                               # update file saving requirements
                                     filename=filename)                  # save frame to specified filename
 
@@ -91,13 +96,6 @@ class Animator:
     
     # private methods
 
-    def _get_frame(sefl, fig):
-        """ metho to get current plotted grame """
-
-        return Image.frombytes(                                         # get frame
-                    'RGB',                                              # color type
-                    fig.canvas.get_width_height(),                      # figure dimensions
-                    fig.canvas.tostring_rgb())                          # figure contents
 
     def _smooth(self, xy:np.ndarray, box_pts:int=10) ->None:
         """ method to smooth a curve dataset"""
@@ -183,7 +181,7 @@ class Animator:
         image = cv2.cvtColor(cv2.imread(path), cv2.COLOR_BGR2RGB)       # read the image using OpenCV
         return np.array(image)                                          # convert the image to a NumPy matrix
     
-    def _save(self, matrix, m_type:str="frames", filename:str='', frame_writer=None) -> str:
+    def _save(self, matrix, m_type:str="frames", filename:str='') -> str:
         """ method to save the contents of an input matrix to file """
 
         if filename == '':
@@ -198,6 +196,9 @@ class Animator:
             filename = filedialog.asksaveasfilename(                    # Prompt the user to select a file location
                 filetypes=[extension])                                  # set default extension
 
+        if filename == '':                                              # canceled by user
+            return filename                                             # abort file saving
+            
         if m_type == "line":                                            # save matrix to dat file
             np.savetxt(filename, matrix)                                # save to text
 
@@ -206,12 +207,15 @@ class Animator:
                 filename += ".gif"                                      # add .gif to file name
             matrix[0].save(filename,                                    # save to file
                            format='GIF',                                # file name
+                           mode="P",                                    # independent colormap
                            append_images=matrix[1:],                    # append files
                            save_all=True,                               # save all frames
+                           optimize=False,
+                           lossless=True,
                            duration=self._config["output"]["frame_duration"],   # frame duration
                            loop=self._config["output"]["loop"])         # number of loops
 
-        return filename, frame_writer
+        return filename
 
     def _load(self, filename:str, m_type:str="image") -> np.ndarray:
         """ method to load the contents of a file into and ndarray """
@@ -221,6 +225,8 @@ class Animator:
 
 # test script TODO: Remove
 a = Animator()                                                          # instantiate Animator object
-#road = a.generate_path("map_road")                                      # generate path dataset
-road = a.import_path("path_road")                                       # import path dataset
-a.animate(["map_all"], road)                                            # launch animation
+if a._config["mode"] == "generate":
+    road = a.generate_path("map_road")                                  # generate path dataset
+elif a._config["mode"] == "animate":
+    road = a.import_path("path_road")                                   # import path dataset
+    a.animate(["map_all"], road)                                        # launch animation

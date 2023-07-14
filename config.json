@@ -1,12 +1,14 @@
 {
+    "mode": "animate",
     "maps": {
         "map_all": "resources/map_all.png",
         "map_road": "resources/map_road.png"
     },
     "path":{
         "path_road": "resources/path_road.dat",
-        "line_width": 4,
-        "skip": 2
+        "line_width": 8,
+        "skip": 8,
+        "color":[0.7, 0.3, 0]
     },
     "resources" : {
         "path_color" : [0,0,255],
@@ -15,14 +17,15 @@
     "filters": {
         "smooth_size": 0,
         "diff_threshold" : 5,
-        "recursion_limit" : 5
+        "recursion_limit" : 2
     },
     "display": {
-        "FoV": [1280, 720]
+        "FoV": [1460, 821],
+        "camera_smooth":100
     },
     "output": {
         "mode" : "save",
-        "size" : [19.2 ,  9.85],
+        "size" : [1736 ,  1018],
         "frame_duration": 33,
         "loop": 0
     }
