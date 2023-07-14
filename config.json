@@ -6,9 +6,8 @@
     },
     "path":{
         "path_road": "resources/path_road.dat",
-        "line_width": 8,
-        "skip": 8,
-        "color":[0.7, 0.3, 0]
+        "line_width": 12,
+        "skip": 8
     },
     "resources" : {
         "path_color" : [0,0,255],
@@ -21,7 +20,9 @@
     },
     "display": {
         "FoV": [1460, 821],
-        "camera_smooth":100
+        "camera_smooth":5,
+        "line_color":[0.7, 0.3, 0],
+        "line_style": "-"
     },
     "output": {
         "mode" : "save",

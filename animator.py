@@ -53,9 +53,11 @@ class Animator:
 
         skip = self._config["path"]["skip"]                             # points to skip from the original dataset
         lw = self._config["path"]["line_width"]                         # plot line width
-        color = self._config["path"]["color"]                           # plot line color
         output_mode = self._config["output"]["mode"]                    # save or show mode
         figure_size = tuple(self._config["output"]["size"])             # output figure size
+        color = self._config["display"]["line_color"]                   # plot line color
+        ls = self._config["display"]["line_style"]                      # plot line style
+        smooth = self._config["display"]["camera_smooth"]               # smoothing coefficient for camera motion
 
         plt.get_current_fig_manager().window.wm_geometry(               # set figure geomtry
             f"{figure_size[0]}x{figure_size[1]}+{0}+{0}")               # as defined by user
@@ -65,16 +67,15 @@ class Animator:
         frames = []                                                     # list of frames if output_mode is set to save
         filename = ""                                                   # filename to save animation
         [self._show(self._bitmaps[im]) for im in ims]                   # display map background        
-        line, = plt.plot(path[0], "--", linewidth=lw, color=color)      # draw first point
+        line, = plt.plot(path[0], ls, linewidth=lw, color=color)      # draw first point
         
         total = len(path[1::skip])                                      # total number of iterations
         for i, pos in tqdm(enumerate(path[1::skip]), total=total):      # iterate over path to follow
             line.set_data(path[:i*skip,0], path[:i*skip,1])             # update data
-            smooth = self._config["display"]["camera_smooth"]
-            m = max(0,i-skip*smooth)
-            M = min(len(path), i+skip*smooth)
+            m = max(0,(i-smooth)*skip)
+            M = min(len(path), (i+smooth)*skip)
             cam_pos = [np.mean(path[m:M,0]), np.mean(path[m:M,1])]
-            self.set_FoV(np.array(pos))                                 # set current Field of View
+            self.set_FoV(np.array(cam_pos))                             # set current Field of View
             fig.canvas.draw()                                           # update drawing             
             plt.pause(0.001)                                            # time to allow visualization
             if output_mode == "save":                                   # update frame to output
