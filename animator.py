@@ -260,8 +260,8 @@ class Animator:
 # test script TODO: Remove
 a = Animator()                                                          # instantiate Animator object
 if a._config["mode"] == "generate":
-    filename = self._config["path"]["map_road"]                         # get file name from config
-    road = a.generate_path(filename)                                    # generate path dataset
+    road = a.generate_path("map_road")                                  # generate path dataset
 elif a._config["mode"] == "animate":
-    road = a._load("path_road", m_type="path")                          # import path dataset
+    filename = a._config["path"]["path_road"]                           # get file name from config
+    road = a._load(filename, m_type="path")                             # import path dataset
     a.animate(["map_all"], road)                                        # launch animation
