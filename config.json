@@ -18,16 +18,16 @@
         "diff_threshold" : 5,
         "recursion_limit" : 2
     },
-    "display": {
-        "FoV": [1460, 821],
-        "camera_smooth":5,
-        "line_color":[0.7, 0.3, 0],
-        "line_style": "-"
-    },
     "output": {
         "mode" : "save",
-        "size" : [1736 ,  1018],
         "frame_duration": 33,
         "loop": 0
+    },
+    "display": {
+        "figure_size" : [1736 ,  1018],
+        "FoV": [1460, 821],
+        "camera_smooth":20,
+        "line_color":[0.7, 0.3, 0],
+        "line_style": "-"
     }
 }
