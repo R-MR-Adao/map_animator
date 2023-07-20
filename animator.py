@@ -24,13 +24,50 @@ class Animator:
 
     # public methods
 
+    def get_config(self) -> dict:
+        """ configuration getter method
+        args: none
+        rets: configuration dict"""
+
+        return self._config
+
+    def launch_cli(self) -> None:
+        """ method to launch a command line interpreter to choose the
+        animator's execution mode
+        args: none
+        rets: none """
+
+        options = ['g', 'a', 'q']                                       # available user options
+        
+        print("Welcome to the map animator CLI.")                       # welcome the user
+        # question to ask user
+        question = """\nPlease type one of the following options:
+    'g' to generate a new trajectory
+    'a': to build animation
+    'q': to quit the CLI
+option"""
+        
+        r = self._get_user_response(question, options=options)          # get user response
+        
+        while not r == 'q':                                             #
+            if r == 'g':                                                # option execute path generation
+                self.generate_path("map_road")                          # generate path dataset
+            elif r == 'a':                                              # option to execute animation build
+                a.build_animation()                                     # build animation
+            else:                                                       # ain't gonna happen
+                pass                                                    # repeat query
+            
+            r = self._get_user_response(question, options=options)      # get user response
+
+        print("Goodbye!")                                               # say goodbye to user
+
     def generate_path(self, im:str) -> np.ndarray:
         """ method to generate the path to follow from an input bitmap
         args: (1) im: str containing the name of the image that encodes
                       the path to follow
         rets: (1) xy: array containing xy coordinates of the identified
                       path
-        Note: after a successful execution, the user is prompted to
+        note: after a successful execution, the user is prompted to
               store the generated coordinate array into a text file """
 
         color = self._config["resources"]["path_color"]                 # user-defined color for path
@@ -44,18 +81,28 @@ class Animator:
         
         xy = self._filter_position(xy)                                  # apply positional filter
         self._show(xy, m_type="line")                                   # show identified path
+        
         query = "Save coordinates to data file?"                        # question to ask user
         if self._get_user_response(query).lower() == "y":               # ask user if to save file
             self._save(xy, m_type="line")                               # save to file
         plt.clf()                                                       # clear plotted figure
         return xy
     
+    def build_animation(self):
+        """ method to load the default map files and launch the animation building function
+        args: none
+        rets: none """
+
+        filename = a._config["path"]["path_road"]                       # get file name from config
+        road = a._load(filename, m_type="path")                         # import path dataset
+        a.animate(["map_back"], road)                                   # launch animation
+    
     def animate(self, ims:list, path:np.ndarray=np.array([[0,0]])) -> None:
         """ method to create image animation
         args: (1) ims: list of images to show stacked
               (2) path: array containing the trajectory to follow
         rets: none
-        Note: after a successful execution, the user is prompted to
+        note: after a successful execution, the user is prompted to
               store the generated animation into a gif file """
 
         skip = self._config["path"]["skip"]                             # points to skip from the original dataset
@@ -166,7 +213,7 @@ class Animator:
         """ method to ask a question to the user
         args: (1) query: str containing the question to ask the user
               (2) options: list of options to present the user with
-        rets: (1) answer: str with user-inserted answer"""
+        rets: (1) answer: str with lowercase user-inserted answer """
         
         print(f"{query} ({','.join(options)}) :", end="")               # prompt user
         answer = input().lower()                                        # get user answer
@@ -188,7 +235,10 @@ class Animator:
             plt.axis('off')                                             # remove axis
         
         if m_type == "line":                                            # line plot
+            map_name = list(self._config["maps"])[0]                    # get the name of the first map
+            plt.imshow(self._bitmaps[map_name])                         # show background map
             plt.plot(matrix[:,0], matrix[:,1])                          # show plot
+            plt.get_current_fig_manager().window.state('zoomed')        # maximize window
 
         plt.show(block=False)                                           # update visualization        
     
@@ -226,6 +276,8 @@ class Animator:
             duration = self._config["output"]["frame_duration"]         # get frame duration config
             loop = self._config["output"]["loop"]                       # get number of loops config
 
+            print("Saving to file. This may take a while...")           # notify user
+
             matrix[0].save(filename,                                    # save to file
                            format='GIF',                                # file name
                            mode="P",                                    # independent colormap
@@ -257,11 +309,18 @@ class Animator:
         if m_type == "path":                                            # load pre-generated path
             return np.loadtxt(filename)                                 # load from text
 
-# test script TODO: Remove
+# launch script begin
+
 a = Animator()                                                          # instantiate Animator object
-if a._config["mode"] == "generate":
-    road = a.generate_path("map_road")                                  # generate path dataset
-elif a._config["mode"] == "animate":
-    filename = a._config["path"]["path_road"]                           # get file name from config
-    road = a._load(filename, m_type="path")                             # import path dataset
-    a.animate(["map_all"], road)                                        # launch animation
+
+if a.get_config()["mode"] == "generate":                                # option execute path generation
+    a.generate_path("map_road")                                         # generate path dataset
+
+elif a.get_config()["mode"] == "animate":                               # option to execute animation build
+    a.build_animation()                                                 # build animation
+
+elif a.get_config()["mode"].lower() == "cli":                           # option to launch the CLI app
+    a. launch_cli()                                                     # launch the CLI app
+
+else:                                                                   # invalid option
+    pass                                                                # used for external module consumption

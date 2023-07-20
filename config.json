@@ -1,13 +1,13 @@
 {
-    "mode": "animate",
+    "mode": "cli",
     "maps": {
-        "map_all": "resources/map_all.png",
+        "map_back": "resources/map_back.png",
         "map_road": "resources/map_road.png"
     },
     "path":{
         "path_road": "resources/path_road.dat",
         "line_width": 12,
-        "skip": 8
+        "skip": 400
     },
     "resources" : {
         "path_color" : [0,0,255],

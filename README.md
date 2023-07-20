@@ -10,8 +10,11 @@ A `Python`-based tool to animate a pre-set trajectory over a map.
   - [`Python` Installation](#python-installation)
   - [Module Requirements](#module-requirements)
   - [Launch the tool](#launch-the-tool)
-  - [Using the tool](#using-the-tool)
-  - [Configuration file](#configuration-file)
+- [Using the tool](#using-the-tool)
+  - [Designing your maps](#designing-your-maps)
+  - [Generating the animation trajectory](#generating-the-animation-trajectory)
+  - [building the animation](#building-the-animation)
+- [Configuration file](#configuration-file)
 
 # Getting Started
 
@@ -93,8 +96,33 @@ python map_animator.py
 
 This will start the tool, and you can now proceed to use it as described in the next section.
 
-## Using the tool
+# Using the tool
 
+Producing a map animation with this tool can be done in just three steps:
 
+1. [Designing your maps](#designing-your-maps)
+2. [Generating the animation trajectory](#generating-the-animation-trajectory)
+3. [building the animation](#building-the-animation)
 
-## Configuration file
+When you launch the tool, you can choose the execution mode by editing the `mode` parameter in the [config.json](config.json) file.
+This parameter can take the following options:
+
+- `"generate"`: to generate the animation trajectory
+- `"animate"`: to build the animation
+- `"CLI"` (default): to choose the execution mode by passing the designated keyword to the command line interpreter
+
+## Designing your maps
+
+This step must be done using any `CAD` software of your choice.
+IF you have no preference, I would personally recommend [Inkscape](https://inkscape.org/), an awesome free vector graphical editor that will allows building all sorts of illustrations.
+
+In order to use this tool, you will have to export at least two images: (in any normal bitmap format such as `*.jpeg` or `*.png`):
+
+1. The actual map that will show in the background
+2. The trajectory map: almost empty image with the exact same dimensions as the background map, but containing only a fine line along the trajectory you wish to animate.
+
+## Generating the animation trajectory
+
+## building the animation
+
+# Configuration file
