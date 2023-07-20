@@ -49,7 +49,7 @@ option"""
         
         r = self._get_user_response(question, options=options)          # get user response
         
-        while not r == 'q':                                             #
+        while not r == 'q':                                             # option to quit the CLI
             if r == 'g':                                                # option execute path generation
                 self.generate_path("map_road")                          # generate path dataset
             elif r == 'a':                                              # option to execute animation build

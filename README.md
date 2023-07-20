@@ -1,6 +1,10 @@
 # Map animator
 
+![](doc/map_animator_wide.png)
+
 A `Python`-based tool to animate a pre-set trajectory over a map.
+
+![](doc/UnderConstruction.png)
 
 # Table of Contents
 - [Map animator](#map-animator)
