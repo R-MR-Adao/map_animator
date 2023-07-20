@@ -4,6 +4,11 @@
 
 A `Python`-based tool to animate a pre-set trajectory over a map.
 
+<div align="center">
+  <image src="doc/example_out.gif" />
+  <p style="text">A reduced size example</p>
+</div
+
 ![](doc/UnderConstruction.png)
 
 # Table of Contents
