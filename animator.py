@@ -21,6 +21,8 @@ class Animator:
         self._bitmaps = {                                               # dict of bitmaps
             map_name:self._load(path, m_type="image")                   # import from each file
             for map_name, path in self._config["maps"].items()}         # in the config file
+        
+        plt.rcParams['toolbar'] = 'None'                                # hide mpl toolbar
 
     # public methods
 
@@ -52,7 +54,7 @@ class Animator:
             if r == 'g':                                                # option execute path generation
                 self.generate_path("map_road")                          # generate path dataset
             elif r == 'a':                                              # option to execute animation build
-                a.build_animation()                                     # build animation
+                self.build_animation()                                  # build animation
             else:                                                       # ain't gonna happen
                 pass                                                    # repeat query
             
@@ -72,9 +74,10 @@ class Animator:
         note: after a successful execution, the user is prompted to
               store the generated coordinate array into a text file """
 
-        color = self._config["resources"]["path_color"]                 # user-defined color for path
+        color = self._config["path"]["color"]                           # user-defined color for path
         mat = self._bitmaps[im]                                         # image matrix
-        mask = np.all(mat == color, axis=2)                             # color-filtering mask
+        axis = color.index(max(color))                                  # most relevant axis
+        mask = np.all(mat == color, axis=axis)                          # color-filtering mask
         xy = np.array(np.where(mask)[::-1]).T                           # determine path coordinates
         
         xy = self._filter_position(xy)                                  # apply positional filter
@@ -91,9 +94,9 @@ class Animator:
         args: none
         rets: none """
 
-        filename = a._config["path"]["path_road"]                       # get file name from config
-        road = a._load(filename, m_type="path")                         # import path dataset
-        a.animate(["map_back"], road)                                   # launch animation
+        filename = self._config["path"]["path_road"]                    # get file name from config
+        road = self._load(filename, m_type="path")                      # import path dataset
+        self.animate(["map_back"], road)                                # launch animation
     
     def animate(self, ims:list, path:np.ndarray=np.array([[0,0]])) -> None:
         """ method to create image animation
@@ -103,9 +106,9 @@ class Animator:
         note: after a successful execution, the user is prompted to
               store the generated animation into a gif file """
 
-        skip = self._config["path"]["skip"]                             # points to skip from the original dataset
-        lw = self._config["path"]["line_width"]                         # plot line width
+        skip = self._config["output"]["skip"]                           # points to skip from the original dataset
         output_mode = self._config["output"]["mode"]                    # save or show mode
+        lw = self._config["display"]["line_width"]                      # plot line width
         figure_size = self._config["display"]["figure_size"]            # output figure size
         color = self._config["display"]["line_color"]                   # plot line color
         ls = self._config["display"]["line_style"]                      # plot line style
@@ -173,7 +176,7 @@ class Animator:
 
         th = self._config["filters"]["diff_threshold"]                  # derivative filter acceptance threshold
         rec_limit = self._config["filters"]["recursion_limit"]          # filter recursion limit
-        start_dir = self._config["resources"]["starting_direction"]     # get starting direction
+        start_dir = self._config["path"]["starting_direction"]          # get starting direction
 
         print(f"Apllying recursive positional filter {n}/{rec_limit}")  # notify user
 
@@ -215,7 +218,7 @@ class Animator:
         rets: (1) answer: str with lowercase user-inserted answer """
         
         options_str = '"' + '", "'.join(options) + '"'                  # options string
-        print(f"{query} ({options_str}) :", end="")                     # prompt user
+        print(f"{query} ({options_str}): ", end="")                     # prompt user
         answer = input().lower()                                        # get user answer
         while answer not in options:                                    # invalid answer
             print(f"Invalid answer. Please use ({options_str}):",       # inform user
@@ -232,11 +235,12 @@ class Animator:
         
         if m_type == "image":                                           # image display 
             plt.get_current_fig_manager().window.state('normal')        # restore window size
+            plt.pause(0.001)                                            # allow figure to change sizes
             plt.imshow(matrix)                                          # show image
             plt.axis('off')                                             # remove axis
         
         if m_type == "line":                                            # line plot
-            lw = self._config["path"]["line_width"]                     # get lin width configuration
+            lw = self._config["display"]["line_width"]                  # get lin width configuration
             color = self._config["display"]["line_color"]               # display line color
             plt.clf()                                                   # clear current figure
             map_name = list(self._config["maps"])[0]                    # get the name of the first map
@@ -315,19 +319,3 @@ class Animator:
             
         if m_type == "path":                                            # load pre-generated path
             return np.loadtxt(filename)                                 # load from text
-
-# launch script begin
-
-a = Animator()                                                          # instantiate Animator object
-
-if a.get_config()["mode"] == "generate":                                # option execute path generation
-    a.generate_path("map_road")                                         # generate path dataset
-
-elif a.get_config()["mode"] == "animate":                               # option to execute animation build
-    a.build_animation()                                                 # build animation
-
-elif a.get_config()["mode"].lower() == "cli":                           # option to launch the CLI app
-    a. launch_cli()                                                     # launch the CLI app
-
-else:                                                                   # invalid option
-    pass                                                                # used for external module consumption

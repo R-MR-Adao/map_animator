@@ -6,11 +6,7 @@
     },
     "path":{
         "path_road": "resources/path_road.dat",
-        "line_width": 8,
-        "skip": 5
-    },
-    "resources" : {
-        "path_color" : [0,0,255],
+        "color" : [0,0,255],
         "starting_direction": "east"
     },
     "filters": {
@@ -19,13 +15,15 @@
     },
     "output": {
         "mode" : "save",
+        "skip": 5,
         "frame_duration": 50,
         "loop": 0
     },
     "display": {
-        "figure_size" : [960 ,  590],
+        "figure_size" : [960 ,  540],
         "FoV": [676, 384],
         "camera_smooth":10,
+        "line_width": 8,
         "line_color":[0.7, 0.3, 0],
         "line_style": "-"
     }
