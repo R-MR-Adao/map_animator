@@ -1,5 +1,5 @@
 # launch script begin
-from animator import Animator
+from src.animator import Animator
 
 a = Animator()                                                          # instantiate Animator object
 
