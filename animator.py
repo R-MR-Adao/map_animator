@@ -44,8 +44,7 @@ class Animator:
         question = """\nPlease type one of the following options:
     'g' to generate a new trajectory
     'a': to build animation
-    'q': to quit the CLI
-option"""
+    'q': to quit the CLI\n"""
         
         r = self._get_user_response(question, options=options)          # get user response
         
@@ -58,6 +57,9 @@ option"""
                 pass                                                    # repeat query
             
             r = self._get_user_response(question, options=options)      # get user response
+            
+            if not r == "q":                                            # user did not quit
+                self.__init__()                                         # reload data and parameters
 
         print("Goodbye!")                                               # say goodbye to user
 
@@ -74,10 +76,6 @@ option"""
         mat = self._bitmaps[im]                                         # image matrix
         mask = np.all(mat == color, axis=2)                             # color-filtering mask
         xy = np.array(np.where(mask)[::-1]).T                           # determine path coordinates
-        
-        smooth_size = self._config["filters"]["smooth_size"]            # get smooth size
-        if smooth_size > 0:                                             # if not deactivated
-            self._smooth(xy, smooth_size)                               # apply smooth to path
         
         xy = self._filter_position(xy)                                  # apply positional filter
         self._show(xy, m_type="line")                                   # show identified path
@@ -113,6 +111,7 @@ option"""
         ls = self._config["display"]["line_style"]                      # plot line style
         smooth = self._config["display"]["camera_smooth"]               # smoothing coefficient for camera motion
 
+        plt.clf()                                                       # clear current figure
         plt.get_current_fig_manager().window.wm_geometry(               # set figure geometry
             f"{figure_size[0]}x{figure_size[1]}+{0}+{0}")               # as defined by user
         plt.subplots_adjust(left=0, right=1, bottom=0, top=1)           # adjust margins
@@ -215,10 +214,11 @@ option"""
               (2) options: list of options to present the user with
         rets: (1) answer: str with lowercase user-inserted answer """
         
-        print(f"{query} ({','.join(options)}) :", end="")               # prompt user
+        options_str = '"' + '", "'.join(options) + '"'                  # options string
+        print(f"{query} ({options_str}) :", end="")                     # prompt user
         answer = input().lower()                                        # get user answer
         while answer not in options:                                    # invalid answer
-            print(f"Invalid answer. Please use {'or'.join(options)}:",  # inform user
+            print(f"Invalid answer. Please use ({options_str}):",       # inform user
                   end="")                                               # same like
             answer = input().lower()                                    # get new answer
         return answer                                                   # return answer
@@ -231,13 +231,17 @@ option"""
         rets: none """
         
         if m_type == "image":                                           # image display 
+            plt.get_current_fig_manager().window.state('normal')        # restore window size
             plt.imshow(matrix)                                          # show image
             plt.axis('off')                                             # remove axis
         
         if m_type == "line":                                            # line plot
+            lw = self._config["path"]["line_width"]                     # get lin width configuration
+            color = self._config["display"]["line_color"]               # display line color
+            plt.clf()                                                   # clear current figure
             map_name = list(self._config["maps"])[0]                    # get the name of the first map
             plt.imshow(self._bitmaps[map_name])                         # show background map
-            plt.plot(matrix[:,0], matrix[:,1])                          # show plot
+            plt.plot(matrix[:,0], matrix[:,1],linewidth=lw,color=color) # show plot
             plt.get_current_fig_manager().window.state('zoomed')        # maximize window
 
         plt.show(block=False)                                           # update visualization        
@@ -268,6 +272,7 @@ option"""
             
         if m_type == "line":                                            # save matrix to dat file
             np.savetxt(filename, matrix)                                # save to text
+            print(f"Generated path saved as '{filename}'")              # notify user
 
         if m_type == "frames":                                          # save as animated gif
             if filename [-4:] != ".gif":                                # incorrect or missing extension
@@ -287,6 +292,8 @@ option"""
                            lossless=True,                               # maximize quality
                            duration=duration,                           # frame duration
                            loop=loop)                                   # number of loops
+            
+            print(f"Animation saved as '{filename}'")                   # notify user
 
         return filename
 

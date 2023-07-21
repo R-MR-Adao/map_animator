@@ -5,11 +5,8 @@
 A `Python`-based tool to animate a pre-set trajectory over a map.
 
 <div align="center">
-  <image src="doc/example_out.gif" />
-  <p style="text">A reduced size example</p>
+  <image src="doc/example_output.gif" />
 </div
-
-![](doc/UnderConstruction.png)
 
 # Table of Contents
 - [Map animator](#map-animator)
@@ -24,6 +21,9 @@ A `Python`-based tool to animate a pre-set trajectory over a map.
   - [Generating the animation trajectory](#generating-the-animation-trajectory)
   - [building the animation](#building-the-animation)
 - [Configuration file](#configuration-file)
+- [Example](#example)
+
+![](doc/UnderConstruction.png)
 
 # Getting Started
 
@@ -118,7 +118,23 @@ This parameter can take the following options:
 
 - `"generate"`: to generate the animation trajectory
 - `"animate"`: to build the animation
-- `"CLI"` (default): to choose the execution mode by passing the designated keyword to the command line interpreter
+- `"CLI"` (default): to choose the execution mode by passing the designated keyword to the command line interpreter.
+
+Upon launching the tool using the `"CLI"` mode option, you are presented with the following interface:
+
+```
+Please type one of the following options:
+    'g' to generate a new trajectory
+    'a': to build animation
+    'q': to quit the CLI
+ ("g", "a", "q") :
+```
+
+which you can use to call the `Animator` methods.
+
+The `"g"` and `"a"` commands can be called multiple times.
+Every time a command is inserted, the config and data files are reloaded.
+This allows you to iteratively optimize the animation parameters in the [configuration file](#configuration-file) described ahead
 
 ## Designing your maps
 
@@ -132,6 +148,17 @@ In order to use this tool, you will have to export at least two images: (in any 
 
 ## Generating the animation trajectory
 
+
+
+![](doc/example_generated_path.png)
+
 ## building the animation
 
 # Configuration file
+
+# Example
+
+<div align="center">
+  <image src="doc/example_output_2.gif" />
+  <p style="text">A reduced size example</p>
+</div
