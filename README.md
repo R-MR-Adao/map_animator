@@ -84,14 +84,14 @@ This command will automatically read the requirements.txt file and install all t
 
 ## Launch the tool
 
-Once you have completed the installation steps and installed the required modules, you can now launch the tool.
+Once you have completed the installation steps and installed the required modules, you can launch the tool by either:
 
-Open a terminal (or command prompt) and navigate to the directory where the source code is located. Then, run the following command:
-
-```bash
-cd [map_animator_directory]
-python launcher.py
-```
+1. double-clicking on the [launcher.bat](launcher.bat) file, or
+2. opening a terminal (or command prompt) and navigate to the directory where the source code is located. Then, run the following command:
+    ```bash
+    cd [map_animator_directory]
+    python launcher.py
+    ```
 
 This will start the tool, and you can now proceed to use it as described in the next section.
 
@@ -103,7 +103,7 @@ Producing a map animation with this tool can be done in just three steps:
 2. [Generating the animation trajectory](#generating-the-animation-trajectory)
 3. [building the animation](#building-the-animation)
 
-When you launch the tool, you can choose the execution mode by editing the `mode` parameter in the [config.json](config.json) file.
+When you [launch the tool](#launch-the-tool), you can choose the execution mode by editing the `mode` parameter in the [config.json](config.json) file.
 This parameter can take the following options:
 
 - `"generate"`: to generate the animation trajectory
@@ -149,6 +149,11 @@ For better performance
    2. take note of its dimensions (in pixels) and add them to the `display->figure_size` configuration in the [configuration file](#configuration-file)
    3. make sure to have enough of a margin around the visualization window, to prevent stepping out of your map design.
 
+Once you have a design, save the background and road files in the [resources](resources/) folder.
+Make sure that the file names designated in the `maps->map_back` and `maps->map_road` settings of the [configuration file](#configuration-file) match the file names under which you stored your design images.
+
+Examples of the two required map image files can be found in [map_back.png](resources/map_back.png) and [map_road.png](resources/map_road.png) in the [resources](resources/) folder.
+
 ## Generating the animation trajectory
 
 To generate a new trajectory either:
@@ -178,6 +183,9 @@ The best way to deal with this effect is to save the generated path as a text da
   <image src="doc/example_generated_path.png" />
 </div>
 
+Once you are done with generating and editing the animation path, make sure that the exported file name matches the `path->path_road` setting in the [configuration file](#configuration-file).
+An example of an exported data file can be found in [path_road.dat](resources/path_road.dat) in the [resources](resources/) folder.
+
 ## Building the animation
 
 To build the animation either:
@@ -187,7 +195,7 @@ To build the animation either:
 Cone launched, you will see the generation being rendered, and a loading bar will be shown on the terminal with a prediction of the remaining time
 
 ```
-  1%|█                                  | 4/342 [00:01<01:17,  4.34it/s]
+  1%|█                                                 | 4/342 [00:01<01:17,  4.34it/s]
 ```
 
 Here is the result of using the current [config.json](config.json) file and resources available in the [resources](resources/) folder
