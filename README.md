@@ -195,7 +195,7 @@ To build the animation either:
 Cone launched, you will see the generation being rendered, and a loading bar will be shown on the terminal with a prediction of the remaining time
 
 ```
-  1%|█                                                 | 4/342 [00:01<01:17,  4.34it/s]
+  1%|█                                                                | 4/342 [00:01<01:17,  4.34it/s]
 ```
 
 Here is the result of using the current [config.json](config.json) file and resources available in the [resources](resources/) folder
